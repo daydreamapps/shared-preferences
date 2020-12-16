@@ -5,15 +5,24 @@ import com.google.gson.Gson
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-class GsonPreferenceDelegate<T>(
+internal class GsonPreferenceDelegate<T>(
+    private val stringDelegate: StringPreferenceDelegate,
+    private val gson: Gson,
     private val type: KClass<*>,
-    sharedPreferences: SharedPreferences,
-    key: String?,
     private val default: T? = null
 ) : PreferenceDelegate<T?> {
 
-    private val stringDelegate = StringPreferenceDelegate(sharedPreferences, key)
-    private val gson: Gson by lazy { Gson() }
+    constructor(
+        type: KClass<*>,
+        sharedPreferences: SharedPreferences,
+        key: String?,
+        default: T? = null
+    ) : this(
+        stringDelegate = StringPreferenceDelegate(sharedPreferences, key),
+        gson = Gson(),
+        type = type,
+        default = default
+    )
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T? {
         val json = stringDelegate.getValue(thisRef, property)
