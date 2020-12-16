@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import kotlin.reflect.KProperty
 
+@Deprecated("Abstract class will be removed by version 1.0. Current approach is incomparable with current practices.")
 abstract class SharedPreferencesHelper(
     val sharedPreferences: SharedPreferences
 ) {
