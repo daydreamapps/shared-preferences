@@ -8,10 +8,10 @@ import kotlin.reflect.KProperty
 
 private const val PROPERTY_NAME: String = "property name"
 private const val KEY: String = "preference-key"
-private const val VALUE: String = "preference-value"
-private const val DEFAULT: String = "preference-default"
+private const val VALUE = 42L
+private const val DEFAULT = -1L
 
-class StringPreferenceDelegateTest {
+class LongPreferenceDelegateTest {
 
     private val sharedPreferences: SharedPreferences = mockk()
     private val editor: SharedPreferences.Editor = mockk()
@@ -21,11 +21,12 @@ class StringPreferenceDelegateTest {
     fun `preferenceKey - key null - property name`() {
         every { property.name } returns PROPERTY_NAME
 
-        StringPreferenceDelegate(
+        LongPreferenceDelegate(
             sharedPreferences = mockk(),
             key = null
         ).apply {
-            assertThat(preferenceKey(property)).isEqualTo(PROPERTY_NAME)
+            assertThat(preferenceKey(property))
+                .isEqualTo(PROPERTY_NAME)
         }
 
         verify { property.name }
@@ -33,33 +34,23 @@ class StringPreferenceDelegateTest {
 
     @Test
     fun `preferenceKey - key nonnull - key`() {
-        StringPreferenceDelegate(
+        LongPreferenceDelegate(
             sharedPreferences = mockk(),
             key = KEY
         ).apply {
-            assertThat(preferenceKey(mockk())).isEqualTo(KEY)
+            assertThat(
+                preferenceKey(
+                    mockk()
+                )
+            ).isEqualTo(KEY)
         }
     }
 
     @Test
-    fun `getValue - sharedPreferences returns null, default not specified - empty string`() {
-        every { sharedPreferences.getString(KEY, null) } returns null
+    fun `getValue - sharedPreferences returns default - default`() {
+        every { sharedPreferences.getLong(KEY, DEFAULT) } returns DEFAULT
 
-        StringPreferenceDelegate(
-            sharedPreferences = sharedPreferences,
-            key = KEY
-        ).apply {
-            assertThat(getValue(mockk(), property)).isEmpty()
-        }
-
-        verify { sharedPreferences.getString(KEY, null) }
-    }
-
-    @Test
-    fun `getValue - sharedPreferences returns null, default not empty - default`() {
-        every { sharedPreferences.getString(KEY, null) } returns null
-
-        StringPreferenceDelegate(
+        LongPreferenceDelegate(
             sharedPreferences = sharedPreferences,
             key = KEY,
             default = DEFAULT
@@ -67,37 +58,41 @@ class StringPreferenceDelegateTest {
             assertThat(getValue(mockk(), property)).isEqualTo(DEFAULT)
         }
 
-        verify { sharedPreferences.getString(KEY, null) }
+        verify {
+            sharedPreferences.getLong(KEY, DEFAULT)
+        }
     }
 
     @Test
     fun `getValue - sharedPreferences returns value - value`() {
-        every { sharedPreferences.getString(KEY, null) } returns VALUE
+        every { sharedPreferences.getLong(KEY, 0L) } returns VALUE
 
-        StringPreferenceDelegate(
+        LongPreferenceDelegate(
             sharedPreferences = sharedPreferences,
             key = KEY
         ).apply {
             assertThat(getValue(mockk(), property)).isEqualTo(VALUE)
         }
 
-        verify { sharedPreferences.getString(KEY, null) }
+        verify {
+            sharedPreferences.getLong(KEY, 0L)
+        }
     }
 
     @Test
     fun `setValue - store sharedPreferences value`() {
         every { sharedPreferences.edit() } returns editor
-        every { editor.putString(KEY, VALUE) } returns editor
+        every { editor.putLong(KEY, VALUE) } returns editor
         every { editor.apply() } just Runs
 
-        StringPreferenceDelegate(
+        LongPreferenceDelegate(
             sharedPreferences = sharedPreferences,
             key = KEY
         ).setValue(mockk(), property, VALUE)
 
         verify {
             sharedPreferences.edit()
-            editor.putString(KEY, VALUE)
+            editor.putLong(KEY, VALUE)
             editor.apply()
         }
     }
